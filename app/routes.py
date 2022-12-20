@@ -71,3 +71,12 @@ def update_book(book_id):
     db.session.commit()
 
     return make_response(f"Book # {book.id} sucessfully updated",  204)
+
+@books_bp.route("/<book_id>", methods=["DELETE"])
+def delete_book(book_id):
+    book=validate_book(book_id)
+
+    db.session.delete(book)
+    db.session.commit()
+
+    return make_response(f"Book # {book.id} sucessfully deleted",  200)
