@@ -17,8 +17,8 @@ def handle_books():
     description=request_body["description"])
     db.session.add(new_Book)
     db.session.commit()
-
     return make_response(f"Book {new_Book.title} created", 201)
+
 @books_bp.route("", methods=["GET"])
 def read_all_books():
     books_response = []
@@ -31,22 +31,22 @@ def read_all_books():
         })
     return jsonify(books_response)
 
-#def validate_book(book_id):
-#    try: 
-#        book_id = int(book_id)
-#    except: 
-#        abort(make_response({"Message":f"book {book_id} is invalid"},400))
+def validate_book(book_id):
+    try: 
+        book_id = int(book_id)
+    except: 
+        abort(make_response({"Message":f"book {book_id} is invalid"},400))
     
-#    for book in best_Books:
-#        if book.id==book_id:
-#            return book
-#    abort(make_response({"Message": f"book {book_id} not found"}, 400))
+    book = Book.query.get(book_id)
+    if not book:
+        abort(make_response({"Message": f"book {book_id} not found"}, 400))
+    return book
 
 
-#@books_bp.route("/<book_id", methods=["GET"])
-#def handle_book(book_id):
-#    book=validate_book(book_id)
+@books_bp.route("/<book_id", methods=["GET"])
+def handle_book(book_id):
+    book=validate_book(book_id)
 
-#    return {"id": book.id, 
-#    "title": book.title, 
-#    "description": book.description}
+    return {"id": book.id, 
+    "title": book.title, 
+    "description": book.description}
