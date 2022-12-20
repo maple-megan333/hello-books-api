@@ -2,6 +2,27 @@ from flask import Blueprint, jsonify, abort, make_response, request
 from .models.book import Book
 from app import db
 
+def validate_book(book_id):
+    try: 
+        book_id = int(book_id)
+    except: 
+        abort(make_response({"Message":f"book {book_id} is invalid"},400))
+    
+    book = Book.query.get(book_id)
+    if not book:
+        abort(make_response({"Message": f"book {book_id} not found"}, 400))
+    return book
+#helper functions 
+def validate_book(book_id):
+    try: 
+        book_id = int(book_id)
+    except: 
+        abort(make_response({"Message":f"book {book_id} is invalid"},400))
+    
+    book = Book.query.get(book_id)
+    if not book:
+        abort(make_response({"Message": f"book {book_id} not found"}, 400))
+    return book
 
 #best_Books = [
 #   Book(1, "A Great and Terrible Beauty", "Something wicked is lurking"),
@@ -31,18 +52,6 @@ def read_all_books():
         })
     return jsonify(books_response)
 
-def validate_book(book_id):
-    try: 
-        book_id = int(book_id)
-    except: 
-        abort(make_response({"Message":f"book {book_id} is invalid"},400))
-    
-    book = Book.query.get(book_id)
-    if not book:
-        abort(make_response({"Message": f"book {book_id} not found"}, 400))
-    return book
-
-
 @books_bp.route("/<book_id", methods=["GET"])
 def handle_book(book_id):
     book=validate_book(book_id)
@@ -50,3 +59,15 @@ def handle_book(book_id):
     return {"id": book.id, 
     "title": book.title, 
     "description": book.description}
+
+
+@books_bp.route("/<book_id>", methods=["PUT"])
+def update_book(book_id):
+    book=validate_book(book_id)
+    request_body = request.get_json()
+    book.title=request_body["title"]
+    book.description = request_body["description"]
+
+    db.session.commit()
+
+    return make_response(f"Book # {book.id} sucessfully updated",  204)
